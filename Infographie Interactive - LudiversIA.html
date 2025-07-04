@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographie Interactive - LudiversIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Définition de la palette de couleurs personnalisée et des styles */
+        :root {
+            --vert-foret: #2d572c;
+            --terracotta-doux: #e07a5f;
+            --jaune-soleil: #f4d35e;
+            --bleu-ciel: #81b29a;
+            --creme: #f2f2f2;
+            --gris-profond: #3d405b;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--creme);
+            color: var(--gris-profond);
+        }
+        /* Styles pour les animations et transitions */
+        .transition-all-slow {
+            transition: all 0.7s ease-in-out;
+        }
+        .transition-all-fast {
+            transition: all 0.3s ease-in-out;
+        }
+        /* Styles pour le noyau central et les branches */
+        #core-container.expanded .pillar {
+            transform: scale(0);
+            opacity: 0;
+        }
+        #core-container.expanded #ludiversia-core {
+            transform: scale(0.8);
+        }
+        .branch {
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+        }
+        #core-container.expanded .branch {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        /* Positionnement des branches sur un cercle */
+        .branch-1 { transform: rotate(0deg)   translate(14rem) rotate(0deg) scale(0.5); }
+        .branch-2 { transform: rotate(60deg)  translate(14rem) rotate(-60deg) scale(0.5); }
+        .branch-3 { transform: rotate(120deg) translate(14rem) rotate(-120deg) scale(0.5); }
+        .branch-4 { transform: rotate(180deg) translate(14rem) rotate(-180deg) scale(0.5); }
+        .branch-5 { transform: rotate(240deg) translate(14rem) rotate(-240deg) scale(0.5); }
+        .branch-6 { transform: rotate(300deg) translate(14rem) rotate(-300deg) scale(0.5); }
+        
+        #core-container.expanded .branch-1 { transform: rotate(0deg)   translate(14rem) rotate(0deg) scale(1); }
+        #core-container.expanded .branch-2 { transform: rotate(60deg)  translate(14rem) rotate(-60deg) scale(1); }
+        #core-container.expanded .branch-3 { transform: rotate(120deg) translate(14rem) rotate(-120deg) scale(1); }
+        #core-container.expanded .branch-4 { transform: rotate(180deg) translate(14rem) rotate(-180deg) scale(1); }
+        #core-container.expanded .branch-5 { transform: rotate(240deg) translate(-240deg) scale(1); }
+        #core-container.expanded .branch-6 { transform: rotate(300deg) translate(14rem) rotate(-300deg) scale(1); }
+
+        /* Pour les écrans plus petits */
+        @media (max-width: 768px) {
+            .branch {
+                position: relative !important;
+                transform: scale(1) !important;
+                margin: 0.5rem;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            #core-container.expanded {
+                flex-direction: column;
+            }
+            #branches-container {
+                position: relative !important;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                height: auto;
+                margin-top: 2rem;
+            }
+            #core-container.expanded #ludiversia-core {
+                transform: scale(1);
+            }
+        }
+        
+        /* Style pour la mise en évidence des branches liées à un public */
+        .branch.highlighted {
+            box-shadow: 0 0 25px 5px var(--jaune-soleil);
+            transform: scale(1.1) !important; /* Garder l'effet de zoom */
+        }
+         .audience-card.selected {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 4px var(--jaune-soleil);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 overflow-x-hidden">
+
+    <!-- Slogan Principal -->
+    <header class="text-center mb-8">
+        <h1 class="text-3xl md:text-5xl font-bold" style="color: var(--gris-profond);">"Le jeu pour chaque esprit"</h1>
+        <button id="mission-button" class="mt-2 text-sm underline" style="color: var(--terracotta-doux);">Notre Mission</button>
+    </header>
+
+    <!-- Conteneur Principal de l'Infographie -->
+    <main class="flex flex-col items-center justify-center flex-grow">
+        <div id="core-container" class="relative flex items-center justify-center transition-all-slow">
+            
+            <!-- Noyau Central Cliquable -->
+            <div id="ludiversia-core" class="relative w-48 h-48 rounded-full flex flex-col items-center justify-center text-white cursor-pointer shadow-2xl transition-all-slow z-10" style="background-color: var(--gris-profond);">
+                <span class="text-2xl font-bold">LudiversIA</span>
+                <span id="core-instruction" class="text-xs mt-1 opacity-100 transition-all-slow">(Cliquez pour explorer)</span>
+            </div>
+
+            <!-- Piliers ADN (disparaissent au clic) -->
+            <div id="pillars-container" class="absolute w-full h-full">
+                <!-- Pilier 1: Jeu -->
+                <div class="pillar absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center text-center p-2 transition-all-slow"><div><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" style="color: var(--bleu-ciel);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg><span class="text-xs font-semibold">Jeu</span></div></div>
+                <!-- Pilier 2: IA -->
+                <div class="pillar absolute right-0 top-1/2 -translate-y-1/2 translate-x-full w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center text-center p-2 transition-all-slow"><div><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" style="color: var(--terracotta-doux);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg><span class="text-xs font-semibold">IA Empathique</span></div></div>
+                <!-- Pilier 3: Neurodiversité -->
+                <div class="pillar absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center text-center p-2 transition-all-slow"><div><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" style="color: var(--jaune-soleil);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg><span class="text-xs font-semibold">Inclusion</span></div></div>
+                <!-- Pilier 4: Durabilité -->
+                <div class="pillar absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center text-center p-2 transition-all-slow"><div><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" style="color: var(--vert-foret);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01M12 6v-1m0-1H9.348a4 4 0 01-3.09-1.555L4.522 2.445A4 4 0 001.432 1H1v2.586a4 4 0 001.172 2.828l2.416 2.416A4 4 0 016 12h12a4 4 0 004-4V5a4 4 0 00-4-4H12z" /></svg><span class="text-xs font-semibold">Durabilité</span></div></div>
+            </div>
+
+            <!-- Conteneur des Branches (apparaissent au clic) -->
+            <div id="branches-container" class="absolute w-full h-full">
+                <!-- Les 6 branches seront positionnées ici par JS sur les grands écrans -->
+            </div>
+        </div>
+
+        <!-- Panneau de Détails pour les Branches -->
+        <div id="details-panel" class="w-full max-w-4xl mt-8 md:mt-16 p-6 bg-white rounded-2xl shadow-xl transition-all-slow opacity-0 -translate-y-10 pointer-events-none">
+            <div class="flex justify-between items-center">
+                <h3 id="details-title" class="text-2xl font-bold"></h3>
+                <button id="close-details" class="font-bold text-2xl" style="color: var(--terracotta-doux);">&times;</button>
+            </div>
+            <p id="details-content" class="mt-4 text-gray-600"></p>
+        </div>
+    </main>
+    
+    <!-- Section des Publics Cibles -->
+    <footer id="audience-section" class="w-full max-w-6xl mt-12 p-6 text-center transition-all-slow opacity-0">
+        <h2 class="text-2xl font-bold mb-6">Adapté pour chaque public</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Carte Audience: Familles -->
+            <div class="audience-card cursor-pointer bg-white p-4 rounded-xl shadow-md transition-all-fast hover:shadow-xl" data-audience="familles">
+                <h3 class="font-bold text-lg" style="color: var(--vert-foret);">Familles</h3>
+                <p class="text-sm text-gray-500">À la recherche de jeux éducatifs et durables.</p>
+            </div>
+            <!-- Carte Audience: Neurodivergents -->
+            <div class="audience-card cursor-pointer bg-white p-4 rounded-xl shadow-md transition-all-fast hover:shadow-xl" data-audience="neurodivergents">
+                <h3 class="font-bold text-lg" style="color: var(--terracotta-doux);">Personnes Neurodivergentes</h3>
+                <p class="text-sm text-gray-500">Pour des expériences de jeu adaptées et apaisantes.</p>
+            </div>
+            <!-- Carte Audience: Éducateurs -->
+            <div class="audience-card cursor-pointer bg-white p-4 rounded-xl shadow-md transition-all-fast hover:shadow-xl" data-audience="educateurs">
+                <h3 class="font-bold text-lg" style="color: var(--bleu-ciel);">Éducateurs & Thérapeutes</h3>
+                <p class="text-sm text-gray-500">Outils pédagogiques et contenus certifiés.</p>
+            </div>
+            <!-- Carte Audience: Kidultes -->
+            <div class="audience-card cursor-pointer bg-white p-4 rounded-xl shadow-md transition-all-fast hover:shadow-xl" data-audience="kidultes">
+                <h3 class="font-bold text-lg" style="color: var(--jaune-soleil);">"Kidultes" & Passionnés</h3>
+                <p class="text-sm text-gray-500">Jeux de collection et expériences immersives.</p>
+            </div>
+        </div>
+        <div id="compagnon-constructif" class="mt-8 flex items-center justify-center space-x-3">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" style="color: var(--gris-profond);" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+             <p class="text-sm italic text-gray-500">Cliquez sur un public pour voir comment LudiversIA répond à ses besoins !</p>
+        </div>
+    </footer>
+
+    <!-- Modal pour la Mission -->
+    <div id="mission-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 transition-all-fast opacity-0 pointer-events-none">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full transform scale-95 transition-all-fast">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--gris-profond);">Notre Mission</h2>
+            <p class="text-gray-600">LudiversIA s'engage à créer un écosystème où le jeu devient un langage universel d'apprentissage, d'épanouissement et de connexion. Nous utilisons la technologie et l'IA comme des partenaires bienveillants pour offrir des expériences personnalisées, inclusives et durables, célébrant la neurodiversité et respectant notre planète. Notre mission est de mettre le pouvoir du jeu entre les mains de chaque esprit, en favorisant la créativité, l'empathie et le bien-être pour tous.</p>
+            <button id="close-modal" class="mt-6 w-full md:w-auto px-6 py-2 rounded-lg font-semibold text-white transition-all-fast" style="background-color: var(--terracotta-doux);">Fermer</button>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- ÉLÉMENTS DU DOM ---
+    const coreContainer = document.getElementById('core-container');
+    const ludiversiaCore = document.getElementById('ludiversia-core');
+    const coreInstruction = document.getElementById('core-instruction');
+    const branchesContainer = document.getElementById('branches-container');
+    const detailsPanel = document.getElementById('details-panel');
+    const detailsTitle = document.getElementById('details-title');
+    const detailsContent = document.getElementById('details-content');
+    const closeDetailsButton = document.getElementById('close-details');
+    const audienceSection = document.getElementById('audience-section');
+    const audienceCards = document.querySelectorAll('.audience-card');
+    const missionButton = document.getElementById('mission-button');
+    const missionModal = document.getElementById('mission-modal');
+    const closeModalButton = document.getElementById('close-modal');
+
+    // --- DONNÉES DE L'INFOGRAPHIE ---
+    const branchesData = {
+        ecommerce: {
+            title: "E-commerce (Neuf & Occasion)",
+            content: "Une boutique en ligne proposant des jeux et jouets neufs, conçus dans le respect de nos valeurs, ainsi qu'une sélection d'articles d'occasion pour prolonger la vie des produits et favoriser l'économie circulaire.",
+            color: 'var(--vert-foret)',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+            audiences: ['familles', 'kidultes']
+        },
+        contenu: {
+            title: "Contenu Éditorial",
+            content: "Un portail riche en articles, vidéos et guides sur le cycle de vie du jouet. Nous collaborons avec des professionnels certifiés (médical, psychothérapeutes, bien-être) pour offrir des approches pédagogiques de qualité.",
+            color: 'var(--terracotta-doux)',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>`,
+            audiences: ['familles', 'educateurs', 'neurodivergents']
+        },
+        creation: {
+            title: "Création de Jouets & Accessoires",
+            content: "Nous concevons nos propres jouets en mettant l'accent sur des matériaux durables et un design 'phygital' innovant, qui mêle jeu physique et interactions numériques pour une expérience enrichie.",
+            color: 'var(--jaune-soleil)',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>`,
+            audiences: ['familles', 'kidultes', 'neurodivergents']
+        },
+        marketplace: {
+            title: "Marketplace de Seconde Main",
+            content: "Une plateforme communautaire pour vendre, acheter ou échanger des jeux et jouets d'occasion. Un geste pour la planète et pour le portefeuille, qui renforce les liens entre passionnés.",
+            color: 'var(--bleu-ciel)',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+            audiences: ['familles', 'kidultes']
+        },
+        recherche: {
+            title: "R&D avec IA",
+            content: "Notre pôle de recherche et développement utilise l'Intelligence Artificielle comme un partenaire bienveillant pour analyser les besoins et personnaliser les recommandations, garantissant une expérience unique et adaptée à chaque utilisateur.",
+            color: 'var(--gris-profond)',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 6a2 2 0 100-4 2 2 0 000 4zm0 14a2 2 0 100-4 2 2 0 000 4zm6-8a2 2 0 100-4 2 2 0 000 4zm-12 0a2 2 0 100-4 2 2 0 000 4z" /></svg>`,
+            audiences: ['neurodivergents', 'educateurs']
+        },
+        services: {
+            title: "Vente de Services",
+            content: "Nous proposons des ateliers, des formations pour les professionnels et des accompagnements personnalisés pour les familles, afin de partager notre expertise et de maximiser les bienfaits du jeu.",
+            color: '#a3a3a3', // un gris neutre
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`,
+            audiences: ['educateurs', 'familles']
+        },
+    };
+
+    // --- FONCTIONS ---
+
+    // Fonction pour créer et afficher les branches
+    function createBranches() {
+        branchesContainer.innerHTML = ''; // Vider le conteneur
+        let i = 1;
+        for (const key in branchesData) {
+            const branch = branchesData[key];
+            const branchEl = document.createElement('div');
+            branchEl.className = `branch branch-${i} absolute w-32 h-32 rounded-full flex flex-col items-center justify-center text-white text-center p-3 cursor-pointer shadow-lg transition-all-slow`;
+            branchEl.style.backgroundColor = branch.color;
+            branchEl.dataset.key = key;
+            branchEl.innerHTML = `
+                ${branch.icon}
+                <span class="text-sm font-semibold mt-1">${branch.title.split('(')[0]}</span>
+            `;
+            branchesContainer.appendChild(branchEl);
+            i++;
+        }
+        // Attacher les écouteurs d'événements aux nouvelles branches
+        attachBranchListeners();
+    }
+
+    // Fonction pour afficher les détails d'une branche
+    function showDetails(key) {
+        const branch = branchesData[key];
+        detailsTitle.textContent = branch.title;
+        detailsContent.textContent = branch.content;
+        detailsPanel.style.opacity = '1';
+        detailsPanel.style.transform = 'translateY(0)';
+        detailsPanel.style.pointerEvents = 'auto';
+    }
+
+    // Fonction pour cacher les détails
+    function hideDetails() {
+        detailsPanel.style.opacity = '0';
+        detailsPanel.style.transform = 'translateY(-2.5rem)';
+        detailsPanel.style.pointerEvents = 'none';
+    }
+
+    // Fonction pour attacher les écouteurs aux branches
+    function attachBranchListeners() {
+        document.querySelectorAll('.branch').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const key = e.currentTarget.dataset.key;
+                showDetails(key);
+            });
+        });
+    }
+
+    // Fonction pour gérer les liens avec le public
+    function handleAudienceClick(e) {
+        const selectedAudienceKey = e.currentTarget.dataset.audience;
+
+        // Gérer la classe 'selected' pour la carte cliquée
+        audienceCards.forEach(card => card.classList.remove('selected'));
+        e.currentTarget.classList.add('selected');
+
+        // Récupérer toutes les branches
+        const allBranches = document.querySelectorAll('.branch');
+        
+        // Parcourir chaque branche pour la mettre en évidence ou non
+        allBranches.forEach(branchEl => {
+            const branchKey = branchEl.dataset.key;
+            const branchData = branchesData[branchKey];
+            
+            if (branchData.audiences.includes(selectedAudienceKey)) {
+                branchEl.classList.add('highlighted');
+            } else {
+                branchEl.classList.remove('highlighted');
+            }
+        });
+    }
+    
+    // --- ÉCOUTEURS D'ÉVÉNEMENTS ---
+
+    // Clic sur le noyau central pour étendre
+    ludiversiaCore.addEventListener('click', () => {
+        if (!coreContainer.classList.contains('expanded')) {
+            coreContainer.classList.add('expanded');
+            coreInstruction.style.opacity = '0';
+            audienceSection.style.opacity = '1';
+        }
+    });
+
+    // Clic pour fermer le panneau de détails
+    closeDetailsButton.addEventListener('click', hideDetails);
+
+    // Clics sur les cartes de public
+    audienceCards.forEach(card => {
+        card.addEventListener('click', handleAudienceClick);
+    });
+
+    // Gestion de la modale de mission
+    missionButton.addEventListener('click', () => {
+        missionModal.classList.remove('opacity-0', 'pointer-events-none');
+        missionModal.querySelector('div').classList.remove('scale-95');
+    });
+
+    closeModalButton.addEventListener('click', () => {
+        missionModal.classList.add('opacity-0', 'pointer-events-none');
+        missionModal.querySelector('div').classList.add('scale-95');
+    });
+    
+    missionModal.addEventListener('click', (e) => {
+        if (e.target === missionModal) {
+             closeModalButton.click();
+        }
+    });
+
+    // --- INITIALISATION ---
+    createBranches();
+});
+</script>
+</body>
+</html>
